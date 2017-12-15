@@ -47,7 +47,7 @@ PLOT_ROUTE <- function(ROUTE) {
 	polypath(POINTS[ROUTE, 2], POINTS[ROUTE, 3])
 }
 
-RESULTS <- NULL
+RESULTS <- matrix(nrow = P_NOF_RUNS, ncol = P_NOF_POINTS + 1)
 for (RUN in 1:P_NOF_RUNS) {
 
 	PLOT_ROUTE(1:P_NOF_POINTS)
@@ -83,7 +83,6 @@ for (RUN in 1:P_NOF_RUNS) {
 			}
 	}
 
-	RESULT <- GENERATION[1,]
-	RESULTS[RUN] <- RESULT
-	paste(RESULT, collapse = ",")
+	RESULTS[RUN,] <- GENERATION[1,]
+	paste(GENERATION[1,], collapse = ",")
 }
