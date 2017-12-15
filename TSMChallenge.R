@@ -1,6 +1,8 @@
 
-POINTS <- read.csv('points.txt', header = FALSE)
-POINTS@names = c('No', 'X coord', 'Y coord')
+POINTS <- read.csv('points.csv', header = FALSE)
+POINTS@names <- c('No', 'X coord', 'Y coord')
+
+ROUTES <- read.csv('routes.csv')
 
 P_NOF_POINTS <- nrow(POINTS)
 P_NOF_CORES <- 80
@@ -70,7 +72,6 @@ RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
 		ORDER <- order(GENERATION[, P_NOF_POINTS + 1])
 		GENERATION <- GENERATION[ORDER,]
 
-		#print(c(RUN, I, GENERATION[1, P_NOF_POINTS + 1]))
 		if (MIN_DISTANCE > GENERATION[1, P_NOF_POINTS + 1]) {
 			MIN_DISTANCE <- GENERATION[1, P_NOF_POINTS + 1]
 			MIN_DISTANCE_COUNT <- 0
@@ -102,7 +103,5 @@ RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
 
 stopCluster(CL)
 
-#for (I in 1:P_NOF_RUNS) {
-#	PLOT_ROUTE(RESULTS[I, 1:P_NOF_POINTS])
-#	print(paste(RESULTS[I,], collapse = ','))
-#}
+for (I in 1:min(5, nrow(ROUTES)))
+	PLOT_ROUTE(t(ROUTES[I, 1:P_NOF_POINTS]))
