@@ -3,8 +3,10 @@ POINTS <- read.csv('points.txt', header = FALSE)
 POINTS@names = c('No', 'X coord', 'Y coord')
 
 P_NOF_POINTS <- nrow(POINTS)
+P_NOF_CORES <- 80
 P_NOF_RUNS <- 10000
 P_NOF_GENERATIONS <- 10000
+P_NOF_GENERATIONS_TO_RETRY <- 250
 P_GENERATION_SIZE <- 1000
 P_NOF_INSTANCES_TO_KEEP <- 10
 P_NOF_INSTANCES_TO_GENERATE <- 100
@@ -47,10 +49,14 @@ PLOT_ROUTE <- function(ROUTE) {
 	polypath(POINTS[ROUTE, 2], POINTS[ROUTE, 3])
 }
 
-RESULTS <- matrix(nrow = P_NOF_RUNS, ncol = P_NOF_POINTS + 1)
-for (RUN in 1:P_NOF_RUNS) {
+library(doParallel)
 
-	PLOT_ROUTE(1:P_NOF_POINTS)
+registerDoParallel(cores = P_NOF_CORES)
+CL <- makeCluster(P_NOF_CORES)
+
+RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
+
+	#PLOT_ROUTE(1:P_NOF_POINTS)
 
 	GENERATION <- matrix(nrow = P_GENERATION_SIZE, ncol = P_NOF_POINTS + 1)
 	MIN_DISTANCE <- Inf
@@ -64,16 +70,16 @@ for (RUN in 1:P_NOF_RUNS) {
 		ORDER <- order(GENERATION[, P_NOF_POINTS + 1])
 		GENERATION <- GENERATION[ORDER,]
 
-		print(c(RUN, I, GENERATION[1, P_NOF_POINTS + 1]))
+		#print(c(RUN, I, GENERATION[1, P_NOF_POINTS + 1]))
 		if (MIN_DISTANCE > GENERATION[1, P_NOF_POINTS + 1]) {
 			MIN_DISTANCE <- GENERATION[1, P_NOF_POINTS + 1]
 			MIN_DISTANCE_COUNT <- 0
-			PLOT_ROUTE(GENERATION[1, 1:P_NOF_POINTS])
+			#PLOT_ROUTE(GENERATION[1, 1:P_NOF_POINTS])
 
 		} else
 			MIN_DISTANCE_COUNT <- MIN_DISTANCE_COUNT + 1
 
-		if (MIN_DISTANCE_COUNT >= 100)
+		if (MIN_DISTANCE_COUNT >= P_NOF_GENERATIONS_TO_RETRY)
 			break;
 
 		for (J in 1:P_NOF_INSTANCES_TO_GENERATE) {
@@ -90,6 +96,12 @@ for (RUN in 1:P_NOF_RUNS) {
 			}
 	}
 
-	RESULTS[RUN,] <- GENERATION[1,]
-	paste(GENERATION[1,], collapse = ',')
+	GENERATION[1,]
+}
+
+stopCluster(CL)
+
+for (I in 1:P_NOF_RUNS) {
+	PLOT_ROUTE(RESULTS[I, 1:P_NOF_POINTS])
+	print(paste(RESULTS[I,], collapse = ','))
 }
