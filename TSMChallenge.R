@@ -45,11 +45,9 @@ for (I in 1:P_GENERATION_SIZE) {
 }
 
 for (I in 1:P_NOF_GENERATIONS) {
-	print(I)
-
 	ORDER <- order(GENERATION[, P_NOF_POINTS + 1])
 	GENERATION <- GENERATION[ORDER,]
-
+	print(c(I, GENERATION[1, P_NOF_POINTS + 1]))
 
 	for (J in 1:P_NOF_INSTANCES_TO_KEEP)
 		for (K in 1:P_NOF_MUTATIONS_TO_GENERATE) {
