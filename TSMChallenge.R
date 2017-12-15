@@ -96,12 +96,13 @@ RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
 			}
 	}
 
+	write(paste(GENERATION[1,], collapse = ','), 'routes.csv', append = TRUE)
 	GENERATION[1,]
 }
 
 stopCluster(CL)
 
-for (I in 1:P_NOF_RUNS) {
-	PLOT_ROUTE(RESULTS[I, 1:P_NOF_POINTS])
-	print(paste(RESULTS[I,], collapse = ','))
-}
+#for (I in 1:P_NOF_RUNS) {
+#	PLOT_ROUTE(RESULTS[I, 1:P_NOF_POINTS])
+#	print(paste(RESULTS[I,], collapse = ','))
+#}
