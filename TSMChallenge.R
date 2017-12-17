@@ -161,6 +161,14 @@ RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
 
 stopCluster(CL)
 
+### FIX PRECISION ###
+
+ROUTES_MATRIX <- data.matrix(ROUTES)
+for (I in 1:nrow(ROUTES_MATRIX)) {
+	ROUTES_MATRIX[I, P_NOF_POINTS + 1] <- CALCULATE_DISTANCE(ROUTES_MATRIX[I,])
+	write(paste(ROUTES_MATRIX[I,], collapse = ','), 'routes.csv', append = TRUE)
+}
+
 ### PLOTTING ###
 
 for (I in 1:min(5, nrow(ROUTES)))
