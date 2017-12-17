@@ -10,7 +10,7 @@ a joint degree programme by all seven public Universities of Applied Sciences of
 The goal is to find the shortest route visiting all [100 random points](00_data/points.csv) exactly once and returing to the start.
 The [50 shortest routes found](00_data/routes.csv) are also included in this repository.
 
-The winning route has a distance of only `9.905745376`.
+The winning route has a distance of only `9.875402279`.
 
 |             Original Route            |            Winning Route            |
 |:-------------------------------------:|:-----------------------------------:|
