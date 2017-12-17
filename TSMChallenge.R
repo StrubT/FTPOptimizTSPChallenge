@@ -1,4 +1,6 @@
 
+### CONFIG ###
+
 POINTS <- read.csv('points.csv', header = FALSE)
 POINTS@names <- c('No', 'X coord', 'Y coord')
 
@@ -22,6 +24,8 @@ for (I in 1:(P_NOF_POINTS - 1))
 		DIST_Y <- POINTS[I, 3] - POINTS[J, 3]
 		DISTANCES[I, J] <- sqrt(DIST_X * DIST_X + DIST_Y * DIST_Y)
 	}
+
+### FUNCTIONS ###
 
 CALCULATE_DISTANCE <- function(ROUTE) {
 
@@ -93,6 +97,8 @@ PLOT_ROUTE <- function(ROUTE) {
 	polypath(POINTS[ROUTE[1:P_NOF_POINTS], 2], POINTS[ROUTE[1:P_NOF_POINTS], 3])
 }
 
+### PARALLEL GENERATION ###
+
 library(doParallel)
 
 registerDoParallel(cores = P_NOF_CORES)
@@ -102,11 +108,11 @@ RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
 
 	#PLOT_ROUTE(1:P_NOF_POINTS)
 
-	GENERATION <- matrix(nrow = P_GENERATION_SIZE, ncol = P_NOF_POINTS + 1)
+	GENERATION <- data.matrix(ROUTES) #matrix(nrow = P_GENERATION_SIZE, ncol = P_NOF_POINTS + 1)
 	MIN_DISTANCE <- Inf
 	MIN_DISTANCE_COUNT <- 0
-	for (I in 1:P_GENERATION_SIZE)
-		GENERATION[I,] <- GENERATE_ROUTE()
+	#for (I in 1:P_GENERATION_SIZE)
+	#GENERATION[I,] <- GENERATE_ROUTE()
 
 	for (I in 1:P_NOF_GENERATIONS) {
 		ORDER <- order(GENERATION[, P_NOF_POINTS + 1])
@@ -132,13 +138,13 @@ RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
 			GENERATION_NEW[K,] <- GENERATE_ROUTE()
 		}
 
-		ORIGIN_INDEXES <- sample(1:P_GENERATION_SIZE, P_NOF_MUTATIONS_TO_GENERATE, replace = TRUE)
+		ORIGIN_INDEXES <- sample(1:nrow(GENERATION), P_NOF_MUTATIONS_TO_GENERATE, replace = TRUE)
 		for (J in 1:P_NOF_MUTATIONS_TO_GENERATE) {
 			K <- P_NOF_INSTANCES_TO_KEEP + P_NOF_INSTANCES_TO_GENERATE + J
 			GENERATION_NEW[K,] <- MUTATE_ROUTE(GENERATION[ORIGIN_INDEXES[J],])
 		}
 
-		ORIGIN_INDEXES <- sample(1:P_GENERATION_SIZE, P_NOF_COMBINATIONS_TO_GENERATE * 2, replace = TRUE)
+		ORIGIN_INDEXES <- sample(1:nrow(GENERATION), P_NOF_COMBINATIONS_TO_GENERATE * 2, replace = TRUE)
 		for (J in 1:P_NOF_COMBINATIONS_TO_GENERATE) {
 			K <- P_NOF_INSTANCES_TO_KEEP + P_NOF_INSTANCES_TO_GENERATE + P_NOF_MUTATIONS_TO_GENERATE + J
 			PARENT_1 <- GENERATION[ORIGIN_INDEXES[J * 2 - 1],]
@@ -154,6 +160,8 @@ RESULTS <- foreach(RUN = 1:P_NOF_RUNS, .combine = rbind) %dopar% {
 }
 
 stopCluster(CL)
+
+### PLOTTING ###
 
 for (I in 1:min(5, nrow(ROUTES)))
 	PLOT_ROUTE(t(ROUTES[I, 1:P_NOF_POINTS]))
